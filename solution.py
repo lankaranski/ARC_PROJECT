@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as pd # type: ignore
 import json
 from openpyxl import load_workbook
 from PIL import Image, ImageDraw
@@ -20,14 +20,14 @@ for row in sheet.iter_rows(1,10):
     for cell in row:
         color = cell.fill.start_color.index
         input_data.append({"id": cell.coordinate, "color": color})
-        if color == "FF0070C0":
+        if color == BLUE:
             starting_point = cell.coordinate
-print(starting_point)
+#print(starting_point)
 
 """
-next step is to solve the problem: startting from only blue(FF0070C0) cell going towards right until reaching red(FFD86DCD) or green(FF00B050). 
+next step is to solve the problem: startting from only blue(FF0070C0) cell going towards right until reaching red(FFD86DCD) or green(FF00B050) or a uncoloured border to stop. 
 whhen reaching red direction changes to 90 degrees counterclockwise. when reaching green direction changes to 90 degrees clockwise. 
-and colours of white(normally FFFFFFFF but in jsondata it is 00000000 for some reason) cells along the way changes to blue(FF0070C0). if it reaches blue, it keeps going in the same direction. and goes until reaching the borders.
+and colours of white(normally FFFFFFFF but in jsondata it is 00000000 for some reason) cells along the way changes to blue(FF0070C0). if it reaches blue, it keeps going in the same direction.
 """
 
 # create 10x10 grid made of colors from input
@@ -50,7 +50,6 @@ start_col = ord(''.join(filter(str.isalpha, starting_point))) - ord('A')
 row = start_row
 col = start_col
 
-print((-2)%4)
 #move until reaching border, change direction when reached green or red
 while 0 <= row < 10 and 0 <= col < 10:
     color = grid[row][col]
@@ -64,15 +63,12 @@ while 0 <= row < 10 and 0 <= col < 10:
         direction = direction
         grid[row][col] = BLUE
 
+    #print(row, col)
     row_direction, col_direction = directions[direction]
     row += row_direction
     col += col_direction
 
-for i in range(10):
-    for j in range(10):
-        input_data[i * 10 + j]["color"] = grid[i][j]
-
-print(grid)
+#print(grid)
 
 #i'll try an output version i found on stack overflow
 image = Image.new('RGB', (1000, 1000), 'white')
@@ -86,7 +82,7 @@ for i in range(10):
         rectangle_x = i*rectangle_width
         rectangle_y = j*rectangle_height
     
-        color = grid[i][j]
+        color = grid[j][i]
 
         if color == BLUE:
             rgb_color = (0, 112, 192)
